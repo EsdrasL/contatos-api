@@ -59,7 +59,7 @@ contatoRouter.route('/')
     }
   })
 
-  .post(function(req, res, next) {
+  .post(upload.single('avatar'), function(req, res, next) {
     const start = Date.now();
 
     req.body.foto = req.file.filename;
