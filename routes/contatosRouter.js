@@ -40,7 +40,7 @@ contatoRouter.route('/')
     const start = Date.now();
 
     function fncallback(err, result) {
-      if(err) throw err;
+      if(err) return next(err);
       res.json(result);
     }
 
@@ -62,10 +62,10 @@ contatoRouter.route('/')
   .post(upload.single('avatar'), function(req, res, next) {
     const start = Date.now();
 
-    req.body.foto = req.file.filename;
+    req.body.foto = req.file.key;
 
     Contatos.create(req.body, function(err, result) {
-      if(err) throw err;
+      if(err) return next(err);
       res.json(result);
     });
     log('CAD', (Date.now() - start).toString(), Date.now(), AWS);
@@ -75,7 +75,7 @@ contatoRouter.route('/:id')
   .get(function(req, res, next) {
     const start = Date.now();
     Contatos.findOne(req.params.id, function(err, result) {
-      if(err) throw err;
+      if(err) return next(err);
       res.json(result);
     });
     log('SHOW', (Date.now() - start).toString(), Date.now(), AWS);
@@ -84,7 +84,7 @@ contatoRouter.route('/:id')
   .put(function(req, res, next) {
     const start = Date.now();
     Contatos.update(req.params.id, req.body, function(err, result) {
-      if(err) throw err;
+      if(err) return next(err);
       res.json(result);
     });
     log('ALT', (Date.now() - start).toString(), Date.now(), AWS);
@@ -93,7 +93,7 @@ contatoRouter.route('/:id')
   .delete(function(req, res, next) {
     const start = Date.now();
     Contatos.remove(req.params.id, function(err, result) {
-      if(err) throw err;
+      if(err) return next(err);
       res.json(result);
     });
     log('EXC', (Date.now() - start).toString(), Date.now(), AWS);
