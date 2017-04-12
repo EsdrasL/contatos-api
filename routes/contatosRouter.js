@@ -1,13 +1,32 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const multer = require("multer");
+const multerS3 = require('multer-s3');
+const crypto = require("crypto");
+const mime = require("mime");
+const AWS = require('aws-sdk');
+
+const log = require('../log');
 
 const dbConnection = require('../dbConnection');
 const modelContatos = require('../models/contatos');
 
-const AWS = require('aws-sdk');
 AWS.config.loadFromPath('./dynamoCredential.json');
 
-const log = require('../log');
+const s3 = new AWS.S3();
+
+const upload = multer({
+  storage: multerS3({
+    s3: s3,
+    bucket: 'contatosf30',
+    acl: 'public-read',
+    key: function (req, file, cb) {
+      crypto.pseudoRandomBytes(16, function (err, raw) {
+        cb(null, raw.toString('hex') + Date.now() + '.' + mime.extension(file.mimetype));
+      });
+    }
+  })
+});
 
 const contatoRouter = express.Router();
 contatoRouter.use(bodyParser.json());
@@ -42,6 +61,9 @@ contatoRouter.route('/')
 
   .post(function(req, res, next) {
     const start = Date.now();
+
+    req.body.foto = req.file.filename;
+
     Contatos.create(req.body, function(err, result) {
       if(err) throw err;
       res.json(result);
